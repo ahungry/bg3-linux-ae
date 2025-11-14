@@ -136,14 +136,6 @@ const unsigned char MODDED_MASK[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 // // ----------------------------------------------------------------------
 // // --- PATCH 2: esv::SavegameManager::ThrowError (Savegame Warnings) ---
 // // ----------------------------------------------------------------------
-// Try this out for the load in menu
-
-// Duds (unknown effect)
-// af ff 84 c0 74 27
-
-// This segment controls whether the icon (game was modded) shows up or not
-// with the blue gear on main menu - inverting flag 74 -> 75 (JZ -> JNZ)
-// 84 c0 74 13 4d 39
 
 // Some long jump - that's the one - flipping the JZ to JNZ avoids superflous
 // "mod changed" prompts: a6 00 84 c0 0f 84 c3 00 00 00 - go 0f 84 -> 0f 85
@@ -154,6 +146,27 @@ const unsigned char MODDED2_PATCH_BYTES[]
 const size_t MODDED2_PATCH_SIZE = sizeof (MODDED2_ORIGINAL_BYTES);
 const unsigned char MODDED2_MASK[]
     = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+
+// // ----------------------------------------------------------------------
+// // --- PATCH 3: new game (ensure mods are not disabled on start) ---
+// // ----------------------------------------------------------------------
+// This segment controls whether the icon (game was modded) shows up or not
+// with the blue gear on main menu - inverting flag 74 -> 75 (JZ -> JNZ)
+// 84 c0 74 13 4d 39
+
+// Duds (unknown effect, including start screen)
+// af ff 84 c0 74 27
+
+// Controls if mods are active during character creation/new game
+// 4e 01 84 c0 74 0b -> flip JZ to JNZ since our first patch inverted this result
+const unsigned char MODDED3_ORIGINAL_BYTES[]
+= { 0x4e, 0x01, 0x84, 0xc0, 0x74, 0x0b };
+const unsigned char MODDED3_PATCH_BYTES[]
+    = { 0x4e, 0x01, 0x84, 0xc0, 0x75, 0x0b };
+const size_t MODDED3_PATCH_SIZE = sizeof (MODDED3_ORIGINAL_BYTES);
+const unsigned char MODDED3_MASK[]
+    = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+
 
 // --- Entry Point for LD_PRELOAD ---
 __attribute__ ((constructor)) void
@@ -173,7 +186,7 @@ init_patch ()
         {
           // The running process is NOT the Baldur's Gate 3 executable.
           // Do nothing and exit the constructor gracefully.
-          fprintf (stderr, "Non-bg3 pid, exiting\n");
+          // fprintf (stderr, "Non-bg3 pid, exiting\n");
           return;
         }
     }
@@ -183,7 +196,7 @@ init_patch ()
       // /proc/self/exe) For safety, we can choose to bail out or continue
       // depending on desired robustness. Continuing here might lead to crashes
       // if we scan non-bg3 memory.
-      fprintf (stderr, "Non-bg3 pid, exiting\n");
+      // fprintf (stderr, "Non-bg3 pid, exiting\n");
       return;
     }
   std::cout
@@ -252,6 +265,27 @@ init_patch ()
     {
       std::cerr
           << "Patch 2 failed: Pattern not found. Game version mismatch likely."
+          << std::endl;
+    }
+
+  // // ---------------------------------
+  // // --- Patch 3: New game  ---
+  // // ---------------------------------
+  std::cout << "\nAttempting Patch 3: new game" << std::endl;
+
+  void *found_address_3 = find_pattern ((unsigned char *)base_address,
+                                        search_size, MODDED3_ORIGINAL_BYTES,
+                                        MODDED3_MASK, MODDED3_PATCH_SIZE);
+
+  if (found_address_3)
+    {
+      std::cout << "Patch 3 match" << std::endl;
+      apply_patch (found_address_3, MODDED3_PATCH_BYTES, MODDED3_PATCH_SIZE);
+    }
+  else
+    {
+      std::cerr
+          << "Patch 3 failed: Pattern not found. Game version mismatch likely."
           << std::endl;
     }
 }
