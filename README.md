@@ -34,3 +34,25 @@ Successfully patched memory at: 0x55ce037440d0
 ```
 
 (among a bunch of Steam output/noise)
+
+# WARNING
+
+This is lightly tested - I was able to get an achievement (hire a
+merc) while my mods were still active, however per standard GPLv3 and
+most FOSS licenses, I assume no liability and guarantee nothing.
+
+I can't imagine there is a chance of anything actually being screwed
+up, especially as it doesn't permanently patch the binary (so if
+things behave oddly, just remove the LD_PRELOAD from your game launch
+command).
+
+# Copyright
+
+Matthew Carter <m@ahungry.com>
+
+# License
+
+GPLv3 or later
+
+Distributed under the GNU General Public License either version 3.0 or (at
+your option) any later version.
