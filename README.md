@@ -35,6 +35,20 @@ Successfully patched memory at: 0x55ce037440d0
 
 (among a bunch of Steam output/noise)
 
+In game, you will *NOT* see the blue gear icon to the left of your
+Continue/New Game menu options (that usually show when using a
+controller).
+
+# Why?
+
+I wanted to play under linux, it runs better than
+steam/proton/dx11/vulkan, and
+https://github.com/evg-zhabotinsky/libspeedhack actually works great
+with it, so you can fast forward through boring enemy turns.
+
+Using that with the windows/proton build stutters badly, and I don't
+use windows, so windows options for the same were not an option.
+
 # WARNING
 
 This is lightly tested - I was able to get an achievement (hire a
