@@ -125,7 +125,7 @@ apply_patch (void *address, const unsigned char *patch_bytes,
 // simd comparison of a lot of DAT fields
 // second segment is the SETZ AL
 // 0c 1b 04        0f 94 c0
-// We want it to always be 1 for now, so changed to B0 01 90
+// We want it to always be 1 for now, so changed to B0 01 90 (MOV AL,0x1 NOP)
 const unsigned char MODDED_ORIGINAL_BYTES[]
     = { 0x0c, 0x1b, 0x04, 0x0f, 0x94, 0xc0 };
 const unsigned char MODDED_PATCH_BYTES[]
