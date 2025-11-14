@@ -9,7 +9,12 @@ were patchable.
 # WIP / Not Working
 
 It looks like on a new game, all mods will be disabled while creating
-the character.  I have to find the spot to patch...
+the character with the ".so" file loaded.  I have to find the spot to
+patch...
+
+In the meantime, just do not have the LD_PRELOAD in your game command
+when making a new character - add it after you're ready to load your
+game and get achievements on an existing save that has mods.
 
 # Installation
 
