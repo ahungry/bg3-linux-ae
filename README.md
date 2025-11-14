@@ -6,6 +6,11 @@ code in Ghidra until I found similar areas (although quite different,
 see discussion here: https://github.com/Norbyte/bg3se/issues/539) that
 were patchable.
 
+# WIP / Not Working
+
+It looks like on a new game, all mods will be disabled while creating
+the character.  I have to find the spot to patch...
+
 # Installation
 
 Clone repo, run "make", add the generated ".so" file into your
@@ -38,6 +43,7 @@ Successfully patched memory at: 0x55ce037440d0
 In game, you will *NOT* see the blue gear icon to the left of your
 Continue/New Game menu options (that usually show when using a
 controller).
+
 
 # Why?
 
