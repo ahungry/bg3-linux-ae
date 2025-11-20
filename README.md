@@ -8,14 +8,29 @@ were patchable.
 
 # Installation
 
-Clone repo, run "make", add the generated ".so" file into your
-LD_PRELOAD in your Steam game launch options:
+Simply download the latest release from the Releases tab (built under
+an Ubuntu 18.04 docker, for maximal linux libc support):
+
+https://github.com/ahungry/bg3-linux-ae/releases
+
+and untar it (`tar xzvf bg3-linux-ae.tar.gz`), this will produce a
+directory `bg3-linux-ae` with 2 files in it - the launch script and
+the .so file.  The launch script takes care of appending your
+LD_PRELOAD as necessary without botching your existing LD_PRELOAD path
+(which will have things like the steam overlay).
+
+Update your Steam launch options command similar to either:
+
 
 ```
-LD_PRELOAD="~/bg3_linux_ae.so${LD_PRELOAD:+:$LD_PRELOAD}" %command% >/tmp/bg3.log 2>&1
+~/bg3-linux-ae/bg3_linux_ae.so %command% >/tmp/bg3.log 2>&1
 ```
 
-if you chose to hold the produced .so file in your home dir.
+or (manual preload vs script):
+
+```
+LD_PRELOAD="~/bg3-linux-ae/bg3_linux_ae.so${LD_PRELOAD:+:$LD_PRELOAD}" %command% >/tmp/bg3.log 2>&1
+```
 
 You can confirm it worked by checking output in /tmp/bg3.log, you
 should see some output like this:
@@ -24,13 +39,17 @@ should see some output like this:
 ❯ cat /tmp/bg3.log
 
 Attempting Patch 1: ls::ModuleSettings::IsModded (Achievements)...
-base_address was: 0x55ce027a7000
+base_address was: 0x5635dd557000
 Patch 1 match
-Successfully patched memory at: 0x55ce041abb9e
+Successfully patched memory at: 0x5635def67dee
 
 Attempting Patch 2: esv::SavegameManager::ThrowError (Savegame Warnings)...
 Patch 2 match
-Successfully patched memory at: 0x55ce037440d0
+Successfully patched memory at: 0x5635de513970
+
+Attempting Patch 3: new game
+Patch 3 match
+Successfully patched memory at: 0x5635dda79a88
 ```
 
 (among a bunch of Steam output/noise)
