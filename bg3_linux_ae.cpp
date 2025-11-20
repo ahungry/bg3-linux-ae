@@ -122,14 +122,16 @@ apply_patch (void *address, const unsigned char *patch_bytes,
 // --- PATCH 1: ls::ModuleSettings::IsModded (Achievement Enabling) ---
 // ----------------------------------------------------------------------
 
+//  find in ghidra: 0c 1b 04 0f 94 c0
 // simd comparison of a lot of DAT fields
 // second segment is the SETZ AL
 // 0c 1b 04        0f 94 c0
+// 20251120 hotfix: 62 1a 04 0f 94 c0
 // We want it to always be 1 for now, so changed to B0 01 90 (MOV AL,0x1 NOP)
 const unsigned char MODDED_ORIGINAL_BYTES[]
-    = { 0x0c, 0x1b, 0x04, 0x0f, 0x94, 0xc0 };
+    = { 0x62, 0x1a, 0x04, 0x0f, 0x94, 0xc0 };
 const unsigned char MODDED_PATCH_BYTES[]
-    = { 0x0c, 0x1b, 0x04, 0xb0, 0x01, 0x90 };
+    = { 0x62, 0x1a, 0x04, 0xb0, 0x01, 0x90 };
 const size_t MODDED_PATCH_SIZE = sizeof (MODDED_ORIGINAL_BYTES);
 const unsigned char MODDED_MASK[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
@@ -139,10 +141,11 @@ const unsigned char MODDED_MASK[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
 // Some long jump - that's the one - flipping the JZ to JNZ avoids superflous
 // "mod changed" prompts: a6 00 84 c0 0f 84 c3 00 00 00 - go 0f 84 -> 0f 85
+// 20251120 hotfix:       a5 00 84 c0 0f 84 c3 00 00 00
 const unsigned char MODDED2_ORIGINAL_BYTES[]
-    = { 0xa6, 0x00, 0x84, 0xc0, 0x0f, 0x84, 0xc3, 0x00, 0x00, 0x00 };
+    = { 0xa5, 0x00, 0x84, 0xc0, 0x0f, 0x84, 0xc3, 0x00, 0x00, 0x00 };
 const unsigned char MODDED2_PATCH_BYTES[]
-    = { 0xa6, 0x00, 0x84, 0xc0, 0x0f, 0x85, 0xc3, 0x00, 0x00, 0x00 };
+    = { 0xa5, 0x00, 0x84, 0xc0, 0x0f, 0x85, 0xc3, 0x00, 0x00, 0x00 };
 const size_t MODDED2_PATCH_SIZE = sizeof (MODDED2_ORIGINAL_BYTES);
 const unsigned char MODDED2_MASK[]
     = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
@@ -158,7 +161,8 @@ const unsigned char MODDED2_MASK[]
 // af ff 84 c0 74 27
 
 // Controls if mods are active during character creation/new game
-// 4e 01 84 c0 74 0b -> flip JZ to JNZ since our first patch inverted this result
+//                  4e 01 84 c0 74 0b -> flip JZ to JNZ (74) since first patch inverted result
+// 20251120 hotfix: 4e 01 84 c0 74 0b (no change?)
 const unsigned char MODDED3_ORIGINAL_BYTES[]
 = { 0x4e, 0x01, 0x84, 0xc0, 0x74, 0x0b };
 const unsigned char MODDED3_PATCH_BYTES[]
