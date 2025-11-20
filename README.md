@@ -23,7 +23,7 @@ Update your Steam launch options command similar to either:
 
 
 ```
-~/bg3-linux-ae/bg3_linux_ae.sh %command% >/tmp/bg3.log 2>&1
+~/bg3-linux-ae/bg3-linux-ae.sh %command% >/tmp/bg3.log 2>&1
 ```
 
 or (manual preload vs script):
