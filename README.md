@@ -13,13 +13,16 @@ an Ubuntu 18.04 docker, for maximal linux libc support):
 
 https://github.com/ahungry/bg3-linux-ae/releases
 
-and untar it (`tar xzvf bg3-linux-ae.tar.gz`), this will produce a
-directory `bg3-linux-ae` with 2 files in it - the launch script and
-the .so file.  The launch script takes care of appending your
-LD_PRELOAD as necessary without botching your existing LD_PRELOAD path
-(which will have things like the steam overlay).
+and untar it anywhere you like (`tar xzvf bg3-linux-ae.tar.gz`), this
+will produce a directory `bg3-linux-ae` with 2 files in it - the
+launch script and the .so file.  The launch script takes care of
+appending your LD_PRELOAD as necessary without botching your existing
+LD_PRELOAD path (which will have things like the steam overlay).
 
-Update your Steam launch options command similar to either:
+Update your Steam launch options command similar to either (note that
+you will want the full path to where you put the files, and the 2
+files should remain in the same directory together - these samples
+assume you untar it in your home directory):
 
 
 ```
