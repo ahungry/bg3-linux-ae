@@ -26,5 +26,6 @@ RUN git clone --depth=1 https://github.com/ahungry/bg3-linux-ae /app
 WORKDIR /app
 
 RUN make -Bj
+RUN ./package.sh
 
-CMD echo
+CMD ["echo"]
