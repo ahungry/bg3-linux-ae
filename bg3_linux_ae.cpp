@@ -128,9 +128,10 @@ apply_patch (void *address, const unsigned char *patch_bytes,
 // 0c 1b 04        0f 94 c0
 // 20251120 hotfix: 62 1a 04 0f 94 c0
 // 20260216 hotfix: 76 1b 04 0f 94 c0
+// 20260327 hotfix: 27 1b 04 0f 94 c0
 // We want it to always be 1 for now, so changed to B0 01 90 (MOV AL,0x1 NOP)
 const unsigned char MODDED_ORIGINAL_BYTES[]
-    = { 0x76, 0x1b, 0x04, 0x0f, 0x94, 0xc0 };
+    = { 0x27, 0x1b, 0x04, 0x0f, 0x94, 0xc0 };
 const unsigned char MODDED_PATCH_BYTES[]
     = { 0x76, 0x1b, 0x04, 0xb0, 0x01, 0x90 };
 const size_t MODDED_PATCH_SIZE = sizeof (MODDED_ORIGINAL_BYTES);

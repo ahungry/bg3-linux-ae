@@ -20,7 +20,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
 
 RUN mkdir /app
 
-RUN echo Building for hotfix 20251120
+# RUN echo Building for hotfix 20251120
+# RUN echo Building for hotfix 20260216
+RUN echo Building for hotfix 20260327
 # RUN git clone --depth=1 https://github.com/ahungry/bg3-linux-ae /app
 
 WORKDIR /app
