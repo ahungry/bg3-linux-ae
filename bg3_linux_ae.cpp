@@ -122,59 +122,25 @@ apply_patch (void *address, const unsigned char *patch_bytes,
 // --- PATCH 1: ls::ModuleSettings::IsModded (Achievement Enabling) ---
 // ----------------------------------------------------------------------
 
-// find in ghidra: _ _ _ 0f 94 c0 (SETZ AL)
-// simd comparison of a lot of DAT fields
-// second segment is the SETZ AL
-// 0c 1b 04        0f 94 c0
-// 20251120 hotfix: 62 1a 04 0f 94 c0
-// 20260216 hotfix: 76 1b 04 0f 94 c0
-// 20260327 hotfix: 27 1b 04 0f 94 c0
-// We want it to always be 1 for now, so changed to B0 01 90 (MOV AL,0x1 NOP)
+// ls::ModuleSettings::IsModded() - walks the module list and returns 1 if
+// any entry is not the vanilla campaign module. All three achievement
+// call sites call it out-of-line, so stubbing it to 31 c0 c3
+// (XOR EAX,EAX / RET) enables achievements in a single patch.
+// NOT the per-entry check at the old _ _ _ 0f 94 c0 site: that one has 13
+// callers, and forcing it empties the mod list so mod UI draws over the
+// vanilla layout - the breakage patches 2 and 3 existed to compensate for.
+// Pattern is the function prologue, unique in the code segment.
+// 20260803 xplay: 55 41 57 41 56 41 55 41 54 53 50 44 8b 77 14 4d 85 f6
 const unsigned char MODDED_ORIGINAL_BYTES[]
-    = { 0x27, 0x1b, 0x04, 0x0f, 0x94, 0xc0 };
+    = { 0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54,
+        0x53, 0x50, 0x44, 0x8b, 0x77, 0x14, 0x4d, 0x85, 0xf6 };
 const unsigned char MODDED_PATCH_BYTES[]
-    = { 0x76, 0x1b, 0x04, 0xb0, 0x01, 0x90 };
+    = { 0x31, 0xc0, 0xc3, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54,
+        0x53, 0x50, 0x44, 0x8b, 0x77, 0x14, 0x4d, 0x85, 0xf6 };
 const size_t MODDED_PATCH_SIZE = sizeof (MODDED_ORIGINAL_BYTES);
-const unsigned char MODDED_MASK[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-
-// // ----------------------------------------------------------------------
-// // --- PATCH 2: esv::SavegameManager::ThrowError (Savegame Warnings) ---
-// // ----------------------------------------------------------------------
-
-// Some long jump - that's the one - flipping the JZ to JNZ avoids superflous
-// "mod changed" prompts: a6 00 84 c0 0f 84 c3 00 00 00 - go 0f 84 -> 0f 85
-// 20251120 hotfix:       a5 00 84 c0 0f 84 c3 00 00 00
-// 20260216 hotfix:       a3 00 84 c0 0f 84 c3 00 00 00
-const unsigned char MODDED2_ORIGINAL_BYTES[]
-    = { 0xa3, 0x00, 0x84, 0xc0, 0x0f, 0x84, 0xc3, 0x00, 0x00, 0x00 };
-const unsigned char MODDED2_PATCH_BYTES[]
-    = { 0xa3, 0x00, 0x84, 0xc0, 0x0f, 0x85, 0xc3, 0x00, 0x00, 0x00 };
-const size_t MODDED2_PATCH_SIZE = sizeof (MODDED2_ORIGINAL_BYTES);
-const unsigned char MODDED2_MASK[]
-    = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-
-// // ----------------------------------------------------------------------
-// // --- PATCH 3: new game (ensure mods are not disabled on start) ---
-// // ----------------------------------------------------------------------
-// This segment controls whether the icon (game was modded) shows up or not
-// with the blue gear on main menu - inverting flag 74 -> 75 (JZ -> JNZ)
-// 84 c0 74 13 4d 39
-
-// Duds (unknown effect, including start screen)
-// af ff 84 c0 74 27
-
-// Controls if mods are active during character creation/new game
-//                  4e 01 84 c0 74 0b -> flip JZ to JNZ (74) since first patch inverted result
-// 20251120 hotfix: 4e 01 84 c0 74 0b (no change?)
-// 20251120 hotfix: 4d 01 84 c0 74 0b
-const unsigned char MODDED3_ORIGINAL_BYTES[]
-= { 0x4d, 0x01, 0x84, 0xc0, 0x74, 0x0b };
-const unsigned char MODDED3_PATCH_BYTES[]
-    = { 0x4d, 0x01, 0x84, 0xc0, 0x75, 0x0b };
-const size_t MODDED3_PATCH_SIZE = sizeof (MODDED3_ORIGINAL_BYTES);
-const unsigned char MODDED3_MASK[]
-    = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-
+const unsigned char MODDED_MASK[]
+    = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
 // --- Entry Point for LD_PRELOAD ---
 __attribute__ ((constructor)) void
@@ -250,50 +216,6 @@ init_patch ()
     {
       std::cerr
           << "Patch 1 failed: Pattern not found. Game version mismatch likely."
-          << std::endl;
-    }
-
-  // // ---------------------------------
-  // // --- Patch 2: ThrowError  ---
-  // // ---------------------------------
-  std::cout << "\nAttempting Patch 2: esv::SavegameManager::ThrowError "
-               "(Savegame Warnings)..."
-            << std::endl;
-
-  void *found_address_2 = find_pattern ((unsigned char *)base_address,
-                                        search_size, MODDED2_ORIGINAL_BYTES,
-                                        MODDED2_MASK, MODDED2_PATCH_SIZE);
-
-  if (found_address_2)
-    {
-      std::cout << "Patch 2 match" << std::endl;
-      apply_patch (found_address_2, MODDED2_PATCH_BYTES, MODDED2_PATCH_SIZE);
-    }
-  else
-    {
-      std::cerr
-          << "Patch 2 failed: Pattern not found. Game version mismatch likely."
-          << std::endl;
-    }
-
-  // // ---------------------------------
-  // // --- Patch 3: New game  ---
-  // // ---------------------------------
-  std::cout << "\nAttempting Patch 3: new game" << std::endl;
-
-  void *found_address_3 = find_pattern ((unsigned char *)base_address,
-                                        search_size, MODDED3_ORIGINAL_BYTES,
-                                        MODDED3_MASK, MODDED3_PATCH_SIZE);
-
-  if (found_address_3)
-    {
-      std::cout << "Patch 3 match" << std::endl;
-      apply_patch (found_address_3, MODDED3_PATCH_BYTES, MODDED3_PATCH_SIZE);
-    }
-  else
-    {
-      std::cerr
-          << "Patch 3 failed: Pattern not found. Game version mismatch likely."
           << std::endl;
     }
 }
