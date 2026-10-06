@@ -1,5 +1,20 @@
 # Baldur's Gate 3 (Linux/Steamdeck) Achievement Enabler (bg3-linux-ae)
 
+# WARNING
+
+THIS IS NOT WORKING CURRENTLY - the "last" patch has been updated at
+least 10 times since I published this repo, and each minor update
+requires a multi-hour process to get this working again.
+
+As I'm no longer actively playing, and the only community patch was an
+AI provided one with no author followup (that is now out of date),
+there will not be a subsequent update to this until/if I plan to play
+again and need to re-enable the achievements.
+
+The repository is being left for reference purposes/a placeholder.
+
+# Intro
+
 Thanks to the work done before at https://github.com/Norbyte/bg3se/ I
 was able to use the Windows byte offsets to scrutinize/backtrack some
 code in Ghidra until I found similar areas (although quite different,
